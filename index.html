@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Whispering Woods RPG</title>
+  <title>Whispering Woods - Ultimate RPG</title>
   <style>
     :root {
       --bg: #101820;
@@ -23,12 +23,10 @@
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
       font-family: 'Courier New', monospace;
       background: linear-gradient(180deg, #0d151a, #1b2d38);
       color: var(--text);
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     .menu-screen {
@@ -41,6 +39,7 @@
       justify-content: center;
       gap: 30px;
       z-index: 1000;
+      padding: 20px;
     }
 
     .menu-screen.hidden {
@@ -48,14 +47,13 @@
     }
 
     .menu-title {
-      font-size: 4rem;
+      font-size: 3.5rem;
       font-weight: bold;
       text-align: center;
       background: linear-gradient(180deg, var(--gold), var(--accent));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      text-shadow: 0 4px 20px rgba(247, 214, 109, 0.3);
       letter-spacing: 4px;
       animation: pulse 2s infinite;
     }
@@ -66,37 +64,50 @@
     }
 
     .menu-subtitle {
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       color: var(--muted);
       text-align: center;
       max-width: 500px;
     }
 
-    .menu-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      width: min(90vw, 400px);
+    .menu-section {
+      width: min(90vw, 450px);
+      background: rgba(30, 50, 65, 0.5);
+      border: 2px solid #2d4355;
+      border-radius: 12px;
+      padding: 20px;
     }
 
-    .menu-btn {
-      width: 100%;
-      padding: 15px 20px;
-      background: linear-gradient(180deg, #2a4a5f, #1d3849);
+    .section-title {
+      color: var(--gold);
+      margin: 0 0 15px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .character-class {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .class-btn {
+      padding: 12px;
+      background: var(--panel);
       color: var(--text);
-      border: 2px solid #5a7d94;
-      border-radius: 10px;
-      font-size: 1.2rem;
+      border: 2px solid var(--muted);
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: 'Courier New', monospace;
       font-weight: bold;
     }
 
-    .menu-btn:hover {
-      transform: translateX(5px);
+    .class-btn.active {
+      background: var(--accent);
+      color: #000;
       border-color: var(--accent);
-      box-shadow: 0 0 15px rgba(124, 198, 255, 0.3);
     }
 
     .difficulty-select {
@@ -104,6 +115,7 @@
       gap: 10px;
       justify-content: center;
       flex-wrap: wrap;
+      margin-bottom: 15px;
     }
 
     .diff-btn {
@@ -123,30 +135,63 @@
       border-color: var(--accent);
     }
 
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: min(90vw, 400px);
+    }
+
+    .menu-btn {
+      width: 100%;
+      padding: 15px 20px;
+      background: linear-gradient(180deg, #2a4a5f, #1d3849);
+      color: var(--text);
+      border: 2px solid #5a7d94;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+
+    .menu-btn:hover {
+      transform: translateX(5px);
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(124, 198, 255, 0.3);
+    }
+
     .game {
-      width: min(90vw, 1000px);
+      width: min(95vw, 1200px);
+      max-height: 95vh;
+      margin: 2.5vh auto;
       background: rgba(15, 23, 29, 0.95);
       border: 3px solid #2d4355;
       border-radius: 18px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      overflow: hidden;
       display: flex;
       flex-direction: column;
-      max-height: 90vh;
+      overflow: hidden;
+    }
+
+    .game.hidden {
+      display: none;
     }
 
     .topbar {
       background: linear-gradient(90deg, var(--panel), var(--panel-2));
-      padding: 18px 22px;
+      padding: 16px 20px;
       border-bottom: 2px solid #314b5c;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       gap: 12px;
+      align-items: center;
     }
 
     .title {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: bold;
       letter-spacing: 0.08em;
       color: var(--gold);
@@ -154,158 +199,234 @@
 
     .stats {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
       color: var(--text);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .stats span {
       background: var(--panel-2);
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid #40657b;
+    }
+
+    .stats strong { color: var(--gold); }
+
+    .main-content {
       display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .stats span strong {
-      color: var(--gold);
-    }
-
-    .content {
-      padding: 24px 22px;
       flex: 1;
+      gap: 16px;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .map-panel {
+      width: 250px;
+      background: rgba(255,255,255,0.02);
+      border: 2px solid #2f4659;
+      border-radius: 12px;
+      padding: 12px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
+      gap: 10px;
+    }
+
+    .map-title {
+      color: var(--accent);
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .map-location {
+      padding: 10px;
+      background: var(--panel-2);
+      border: 1px solid #40657b;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+    }
+
+    .map-location:hover {
+      border-color: var(--accent);
+      background: rgba(124, 198, 255, 0.1);
+    }
+
+    .map-location.active {
+      border-color: var(--gold);
+      background: rgba(247, 214, 109, 0.1);
+    }
+
+    .game-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
     }
 
     .scene-name {
       color: var(--gold);
-      margin: 0 0 8px;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: bold;
       text-transform: uppercase;
       letter-spacing: 2px;
+      margin: 0;
     }
 
     .scene-desc {
       color: var(--muted);
-      font-size: 0.85rem;
-      margin-bottom: 12px;
+      font-size: 0.8rem;
     }
 
     .story {
       background: rgba(255,255,255,0.02);
       border: 2px solid #2f4659;
       border-radius: 12px;
-      padding: 18px;
-      line-height: 1.8;
-      min-height: 120px;
+      padding: 14px;
+      line-height: 1.6;
       color: var(--text);
-      margin-bottom: 12px;
+      font-size: 0.9rem;
+      flex: 1;
+      overflow-y: auto;
+      min-height: 100px;
     }
 
     .choices {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 8px;
     }
 
     button {
-      flex: 1 1 160px;
+      flex: 1 1 140px;
       background: linear-gradient(180deg, #2a4a5f, #1d3849);
       color: var(--text);
       border: 1px solid #5a7d94;
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 0.95rem;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
       cursor: pointer;
       transition: all 0.15s ease;
       font-family: 'Courier New', monospace;
       font-weight: bold;
-      min-height: 45px;
+      min-height: 40px;
     }
 
     button:hover {
       filter: brightness(1.15);
       transform: translateY(-2px);
       border-color: var(--accent);
-      box-shadow: 0 4px 12px rgba(124, 198, 255, 0.2);
     }
 
-    button:active {
-      transform: translateY(0);
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
-    .battle-container {
+    .battle-ui {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 8px;
     }
 
     .battle-card {
       background: rgba(255,255,255,0.03);
       border: 2px solid #2f4659;
-      border-radius: 10px;
-      padding: 15px;
+      border-radius: 8px;
+      padding: 12px;
     }
 
     .battle-name {
       color: var(--accent);
       font-weight: bold;
-      margin-bottom: 8px;
-      font-size: 1.1rem;
+      margin-bottom: 6px;
+      font-size: 1rem;
     }
 
     .hp-bar {
       background: #1a2a35;
       border: 1px solid #40657b;
-      border-radius: 8px;
-      height: 24px;
+      border-radius: 6px;
+      height: 20px;
       overflow: hidden;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .hp-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--good), #5dcc6a);
-      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #000;
       font-weight: bold;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       transition: width 0.3s ease;
     }
 
     .hp-text {
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.75rem;
     }
 
     .log {
       background: rgba(0,0,0,0.3);
       border: 2px solid #2d4658;
-      border-radius: 10px;
-      padding: 12px 14px;
+      border-radius: 8px;
+      padding: 10px 12px;
       color: var(--muted);
-      min-height: 60px;
-      max-height: 100px;
+      font-size: 0.85rem;
+      max-height: 80px;
       overflow-y: auto;
       white-space: pre-wrap;
-      word-wrap: break-word;
-      font-size: 0.9rem;
     }
 
     .log-success { color: var(--good); }
     .log-danger { color: var(--danger); }
     .log-accent { color: var(--accent); }
+
+    .side-panel {
+      width: 200px;
+      background: rgba(255,255,255,0.02);
+      border: 2px solid #2f4659;
+      border-radius: 12px;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel-title {
+      color: var(--accent);
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .inventory-item {
+      background: var(--panel-2);
+      border: 1px solid #40657b;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
+    .quest-item {
+      background: var(--panel-2);
+      border: 1px solid var(--purple);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.8rem;
+      color: var(--purple);
+    }
 
     .sound-toggle {
       position: absolute;
@@ -327,76 +448,119 @@
       transform: scale(1.1);
     }
 
-    .sound-toggle.muted {
-      opacity: 0.5;
-    }
+    .sound-toggle.muted { opacity: 0.5; }
 
-    .inventory {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .item-badge {
-      background: var(--panel-2);
-      border: 1px solid var(--accent);
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      color: var(--accent);
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+      }
+      .map-panel, .side-panel {
+        width: 100%;
+        max-height: 150px;
+      }
+      .menu-title {
+        font-size: 2rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="menu-screen" id="menuScreen">
     <div class="menu-title">⚔️ WHISPERING WOODS ⚔️</div>
-    <div class="menu-subtitle">
-      Explore a dark fantasy world, battle fearsome creatures, and uncover the mysteries of an ancient shrine.
+    <div class="menu-subtitle">An epic fantasy RPG adventure awaits...</div>
+
+    <div class="menu-section">
+      <div class="section-title">📊 Select Class</div>
+      <div class="character-class">
+        <button class="class-btn active" data-class="warrior">⚔️ Warrior</button>
+        <button class="class-btn" data-class="mage">🔮 Mage</button>
+        <button class="class-btn" data-class="rogue">🗡️ Rogue</button>
+        <button class="class-btn" data-class="paladin">✨ Paladin</button>
+      </div>
+      <div id="classDesc" style="color: var(--muted); font-size: 0.85rem;">High HP, Strong Melee</div>
     </div>
 
-    <div style="width: min(90vw, 400px);">
-      <div style="margin-bottom: 20px; text-align: center;">
-        <div style="color: var(--muted); margin-bottom: 10px;">SELECT DIFFICULTY:</div>
-        <div class="difficulty-select">
-          <button class="diff-btn active" data-difficulty="normal">NORMAL</button>
-          <button class="diff-btn" data-difficulty="hard">HARD</button>
-          <button class="diff-btn" data-difficulty="nightmare">NIGHTMARE</button>
-        </div>
+    <div class="menu-section">
+      <div class="section-title">⚙️ Difficulty</div>
+      <div class="difficulty-select">
+        <button class="diff-btn active" data-difficulty="normal">NORMAL</button>
+        <button class="diff-btn" data-difficulty="hard">HARD</button>
+        <button class="diff-btn" data-difficulty="nightmare">NIGHTMARE</button>
       </div>
     </div>
 
     <div class="menu-buttons">
       <button class="menu-btn" id="startBtn">▶ START ADVENTURE</button>
+      <button class="menu-btn" id="loadBtn">📂 LOAD GAME</button>
       <button class="menu-btn" onclick="showCredits()">ℹ️ ABOUT</button>
     </div>
   </div>
 
-  <button class="sound-toggle" id="soundToggle" title="Toggle Sound">🔊</button>
+  <button class="sound-toggle" id="soundToggle">🔊</button>
 
-  <div class="game" id="game" style="display: none;">
+  <div class="game" id="game">
     <div class="topbar">
       <div class="title">WHISPERING WOODS</div>
       <div class="stats">
-        <span id="hp">❤️ HP: <strong>12/12</strong></span>
+        <span id="class">🎭 <strong>Warrior</strong></span>
+        <span id="hp">❤️ HP: <strong>20/20</strong></span>
         <span id="level">⭐ LV: <strong>1</strong></span>
         <span id="exp">XP: <strong>0/100</strong></span>
         <span id="gold">💰 Gold: <strong>0</strong></span>
       </div>
     </div>
 
-    <div class="content">
-      <div class="scene-name" id="sceneName">The Start</div>
-      <div class="scene-desc" id="sceneDesc"></div>
-      <div class="story" id="story"></div>
-      <div id="battleArea"></div>
-      <div class="choices" id="choices"></div>
-      <div class="inventory" id="inventory"></div>
-      <div class="log" id="log"></div>
+    <div class="main-content">
+      <div class="map-panel" id="mapPanel"></div>
+
+      <div class="game-panel">
+        <h2 class="scene-name" id="sceneName">Start</h2>
+        <div class="scene-desc" id="sceneDesc"></div>
+        <div class="story" id="story"></div>
+        <div id="battleArea"></div>
+        <div class="choices" id="choices"></div>
+        <div class="log" id="log"></div>
+      </div>
+
+      <div class="side-panel">
+        <div class="panel-title">📦 Inventory</div>
+        <div id="inventory"></div>
+        <div class="panel-title">📋 Quests</div>
+        <div id="quests"></div>
+        <div class="panel-title">💾 Game</div>
+        <button style="width: 100%;">💾 Save Game</button>
+        <button style="width: 100%;">🔄 Main Menu</button>
+      </div>
     </div>
   </div>
 
   <script>
+    // Classes
+    const classes = {
+      warrior: { hp: 25, power: 4, defense: 2, desc: "⚔️ Warrior - High HP, Strong Melee" },
+      mage: { hp: 15, power: 6, defense: 1, desc: "🔮 Mage - High Magic Damage" },
+      rogue: { hp: 18, power: 5, defense: 1, desc: "🗡️ Rogue - High Dodge" },
+      paladin: { hp: 22, power: 3, defense: 3, desc: "✨ Paladin - Balanced Stats" }
+    };
+
+    // Map
+    const locations = [
+      { id: 'village', name: '🏘️ Alder Village', type: 'safe' },
+      { id: 'forest', name: '🌲 Whisper Forest', type: 'danger' },
+      { id: 'cave', name: '🕳️ Moonlit Cavern', type: 'danger' },
+      { id: 'shrine', name: '🏛️ Ruined Shrine', type: 'boss' },
+      { id: 'market', name: '🏪 Market', type: 'safe' },
+      { id: 'tavern', name: '🍺 Tavern', type: 'safe' }
+    ];
+
+    // Quests
+    const quests = {
+      slayWolf: { title: 'Slay the Wolf', status: 'active', progress: 0 },
+      findKey: { title: 'Find Shrine Key', status: 'active', progress: 0 },
+      defeatGuardian: { title: 'Defeat Guardian', status: 'locked', progress: 0 }
+    };
+
+    // Sound
     const soundEnabled = { value: true };
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -426,21 +590,21 @@
       osc.stop(now + sound.duration);
     }
 
+    // State
     const state = {
-      hp: 12,
-      maxHp: 12,
+      selectedClass: 'warrior',
+      difficulty: 'normal',
+      currentLocation: 'village',
+      hp: 20,
+      maxHp: 20,
       level: 1,
       exp: 0,
       expNeeded: 100,
       gold: 0,
-      power: 2,
-      defense: 1,
-      lantern: false,
-      key: false,
-      potion: 1,
-      hasWon: false,
-      difficulty: 'normal',
-      enemiesDefeated: 0
+      power: 4,
+      defense: 2,
+      inventory: ['Potion x2'],
+      hasWon: false
     };
 
     const difficultyMods = {
@@ -450,195 +614,189 @@
     };
 
     const scenes = {
-      intro: {
-        name: "The Whispering Trail",
-        desc: "Location: Forest Entrance | Creatures: None",
-        text: "You wake at the edge of the Whispering Woods with no memory of how you arrived. A cold wind carries the scent of pine and something ancient. In the distance, a ruined shrine sits atop a mountain, its bells tolling in the darkness. The path before you splits: one way leads to a small village with flickering lights, the other plunges deeper into the forest.",
-        choices: [
-          { text: "🏘️ Head to the village", next: "village" },
-          { text: "🌲 Venture into the forest", next: "forest" }
-        ]
-      },
       village: {
         name: "Alder Village",
-        desc: "Location: Safe Haven | NPCs: Blacksmith, Innkeeper",
-        text: "Warm torchlight flickers across wooden buildings. The village is quiet but welcoming. You see a sturdy blacksmith hammering away at a forge, radiating heat. Near the tavern, an innkeeper watches travelers with a knowing smile. The smell of bread and ale fills the air.",
+        desc: "Location: Safe Haven | NPCs: Blacksmith, Innkeeper, Merchant",
+        text: "Warm torchlight flickers across wooden buildings. The village welcomes weary travelers. You see a sturdy blacksmith, an innkeeper, and a curious merchant.",
         choices: [
-          { text: "⚔️ Train with the blacksmith (+2 Power)", action: "train" },
-          { text: "🧪 Buy a Healing Potion (5 Gold)", action: "buyPotion" },
-          { text: "🛌 Rest at the inn (Full HP Restore)", action: "rest" },
-          { text: "🚶 Leave for the forest", next: "forest" }
+          { text: "⚔️ Train (+2 Power)", action: "train" },
+          { text: "🛌 Rest (Full HP)", action: "rest" },
+          { text: "🌲 Go to Forest", next: "forest" }
         ]
       },
       forest: {
         name: "Whispering Forest",
         desc: "Location: Dense Woodland | Creatures: Wolves, Spirits",
-        text: "Ancient trees tower overhead, their branches intertwining to form a natural canopy. Silver petals drift through the air like snow. Strange symbols are carved into the bark of the oldest trees. Faint whispers echo through the woods, and you feel an ancient presence watching. To the east, a cave entrance glows faintly. To the north, the mountain path beckons.",
+        text: "Ancient trees tower overhead. Silver petals drift through the air. You feel an ancient presence watching.",
         choices: [
-          { text: "🐺 Fight a wild wolf", action: "wolfBattle" },
-          { text: "🔍 Search for treasure", action: "searchBushes" },
-          { text: "🕳️ Enter the mysterious cave", next: "cave" },
-          { text: "🏔️ Climb the mountain path", next: "shrine" },
-          { text: "🏘️ Return to village", next: "village" }
+          { text: "🐺 Fight Wolf", action: "wolfBattle" },
+          { text: "🕳️ Enter Cave", next: "cave" },
+          { text: "🏘️ Return to Village", next: "village" }
         ]
       },
       cave: {
         name: "Moonlit Cavern",
         desc: "Location: Underground | Creatures: Cave Slime, Treasure",
-        text: "Inside the cave, glowing moss illuminates ancient stone. A still pool of crystalline water reflects the eerie light. In the center of the chamber sits an ornate chest, sealed with mysterious runes. The air is cold and damp, carrying whispers of ages past.",
+        text: "Glowing moss illuminates ancient stone. An ornate chest sits in the center, sealed with mysterious runes.",
         choices: [
-          { text: "🗝️ Open the ancient chest", action: "openChest" },
-          { text: "🟢 Battle the cave slime", action: "slimeBattle" },
-          { text: "🔙 Return to forest", next: "forest" }
+          { text: "🗝️ Open Chest", action: "openChest" },
+          { text: "🟢 Battle Slime", action: "slimeBattle" },
+          { text: "🔙 Return to Forest", next: "forest" }
         ]
       },
       shrine: {
         name: "Ruined Shrine",
-        desc: "Location: Mountain Peak | Creatures: Guardian",
-        text: "The shrine looms before you, massive and crumbling. Stone pillars stand like skeletal fingers reaching toward a black sky. An iron door bars entry to the inner chamber, and an ominous shadow stirs behind it. Ancient runes glow with malevolent light. This is where your destiny awaits.",
+        desc: "Location: Mountain Peak | Boss: Guardian",
+        text: "The shrine looms before you, massive and crumbling. An ominous shadow stirs behind the iron door. This is your final test.",
         choices: [
-          { text: "⚔️ Confront the guardian", action: "finalBattle" },
-          { text: "🔙 Return to forest", next: "forest" }
+          { text: "⚔️ Face the Guardian", action: "finalBattle" },
+          { text: "🔙 Return to Forest", next: "forest" }
         ]
       },
       ending: {
         name: "Victory!",
         desc: "Location: The Shrine | Status: CLEARED",
-        text: "The guardian falls in a burst of silver light and shadow. The shrine's doors burst open, revealing a glowing relic pulsing with ancient power. The darkness that plagued the land recedes, and peace returns to the Whispering Woods. Your name will be sung in legends. You are a true hero.",
+        text: "The guardian falls. The shrine opens, revealing a glowing relic. Peace returns to the Whispering Woods. You are a true hero.",
         choices: [{ text: "🔄 Play Again", action: "restartGame" }]
       }
     };
 
-    let currentScene = "intro";
-    const logEl = document.getElementById("log");
-    const storyEl = document.getElementById("story");
-    const choicesEl = document.getElementById("choices");
-    const sceneNameEl = document.getElementById("sceneName");
-    const sceneDescEl = document.getElementById("sceneDesc");
-    const inventoryEl = document.getElementById("inventory");
     const menuScreen = document.getElementById("menuScreen");
     const gameScreen = document.getElementById("game");
     const soundToggle = document.getElementById("soundToggle");
-    const battleAreaEl = document.getElementById("battleArea");
 
-    function randomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    // Class selection
+    document.querySelectorAll('.class-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        state.selectedClass = this.dataset.class;
+        document.getElementById('classDesc').textContent = classes[state.selectedClass].desc;
+        playSound('click');
+      });
+    });
 
-    function addLog(msg, type = '') {
-      let html = msg;
-      if (type === 'success') html = `<span class="log-success">✓ ${msg}</span>`;
-      else if (type === 'danger') html = `<span class="log-danger">✗ ${msg}</span>`;
-      else if (type === 'accent') html = `<span class="log-accent">→ ${msg}</span>`;
-      logEl.innerHTML = html;
+    // Difficulty selection
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        state.difficulty = this.dataset.difficulty;
+        playSound('click');
+      });
+    });
+
+    // Start game
+    document.getElementById('startBtn').addEventListener('click', () => {
+      const classStats = classes[state.selectedClass];
+      Object.assign(state, {
+        hp: classStats.hp,
+        maxHp: classStats.hp,
+        power: classStats.power,
+        defense: classStats.defense,
+        level: 1,
+        exp: 0,
+        gold: 0,
+        hasWon: false
+      });
+      menuScreen.classList.add('hidden');
+      gameScreen.classList.remove('hidden');
+      renderMap();
+      loadScene('village');
+      playSound('success');
+    });
+
+    // Sound toggle
+    soundToggle.addEventListener('click', () => {
+      soundEnabled.value = !soundEnabled.value;
+      soundToggle.textContent = soundEnabled.value ? '🔊' : '🔇';
+      soundToggle.classList.toggle('muted');
+    });
+
+    function renderMap() {
+      const mapPanel = document.getElementById('mapPanel');
+      mapPanel.innerHTML = '<div class="map-title">📍 Map</div>';
+      locations.forEach(loc => {
+        const div = document.createElement('div');
+        div.className = 'map-location' + (loc.id === state.currentLocation ? ' active' : '');
+        div.textContent = loc.name;
+        div.addEventListener('click', () => {
+          if (loc.id !== state.currentLocation) {
+            state.currentLocation = loc.id;
+            loadScene(loc.id);
+          }
+        });
+        mapPanel.appendChild(div);
+      });
     }
 
     function updateStats() {
-      document.getElementById("hp").innerHTML = `❤️ HP: <strong>${state.hp}/${state.maxHp}</strong>`;
-      document.getElementById("level").innerHTML = `⭐ LV: <strong>${state.level}</strong>`;
-      document.getElementById("exp").innerHTML = `XP: <strong>${state.exp}/${state.expNeeded}</strong>`;
-      document.getElementById("gold").innerHTML = `💰 Gold: <strong>${state.gold}</strong>`;
+      document.getElementById('class').innerHTML = `🎭 <strong>${state.selectedClass.toUpperCase()}</strong>`;
+      document.getElementById('hp').innerHTML = `❤️ HP: <strong>${state.hp}/${state.maxHp}</strong>`;
+      document.getElementById('level').innerHTML = `⭐ LV: <strong>${state.level}</strong>`;
+      document.getElementById('exp').innerHTML = `XP: <strong>${state.exp}/${state.expNeeded}</strong>`;
+      document.getElementById('gold').innerHTML = `💰 Gold: <strong>${state.gold}</strong>`;
 
-      inventoryEl.innerHTML = '';
-      if (state.lantern) inventoryEl.innerHTML += '<div class="item-badge">🏮 Lantern</div>';
-      if (state.key) inventoryEl.innerHTML += '<div class="item-badge">🗝️ Shrine Key</div>';
-      if (state.potion > 0) inventoryEl.innerHTML += `<div class="item-badge">🧪 Potion x${state.potion}</div>`;
+      const invDiv = document.getElementById('inventory');
+      invDiv.innerHTML = '';
+      state.inventory.forEach(item => {
+        const badge = document.createElement('div');
+        badge.className = 'inventory-item';
+        badge.textContent = item;
+        invDiv.appendChild(badge);
+      });
+
+      const questDiv = document.getElementById('quests');
+      questDiv.innerHTML = '';
+      Object.values(quests).forEach(q => {
+        const badge = document.createElement('div');
+        badge.className = 'quest-item';
+        badge.textContent = `${q.title} [${q.status}]`;
+        questDiv.appendChild(badge);
+      });
     }
 
-    function gainExp(amount) {
-      state.exp += amount;
-      addLog(`Gained ${amount} XP!`, 'success');
-      if (state.exp >= state.expNeeded) {
-        state.level += 1;
-        state.exp = 0;
-        state.expNeeded = Math.floor(state.expNeeded * 1.3);
-        state.power += 1;
-        state.defense += 1;
-        state.maxHp += 5;
-        state.hp = state.maxHp;
-        playSound('levelup');
-        addLog(`LEVEL UP! You are now Level ${state.level}!`, 'accent');
-      }
-      updateStats();
-    }
+    function loadScene(sceneKey) {
+      state.currentLocation = sceneKey;
+      const scene = scenes[sceneKey] || scenes.village;
+      document.getElementById('sceneName').textContent = scene.name;
+      document.getElementById('sceneDesc').textContent = scene.desc;
+      document.getElementById('story').textContent = scene.text;
+      document.getElementById('battleArea').innerHTML = '';
+      
+      const choicesDiv = document.getElementById('choices');
+      choicesDiv.innerHTML = '';
+      scene.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.textContent = choice.text;
+        btn.addEventListener('click', () => handleChoice(choice));
+        choicesDiv.appendChild(btn);
+      });
 
-    function setScene(key) {
-      if (state.hasWon) return;
-      currentScene = key;
-      const scene = scenes[key];
-      sceneNameEl.textContent = scene.name;
-      sceneDescEl.textContent = scene.desc;
-      storyEl.textContent = scene.text;
-      battleAreaEl.innerHTML = '';
-      renderChoices(scene.choices);
+      renderMap();
       updateStats();
       playSound('click');
     }
 
-    function renderChoices(choices) {
-      choicesEl.innerHTML = '';
-      choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.textContent = choice.text;
-        btn.addEventListener('click', () => handleChoice(choice));
-        choicesEl.appendChild(btn);
-      });
-    }
-
     function handleChoice(choice) {
-      if (state.hasWon) return;
-
       if (choice.next) {
-        setScene(choice.next);
+        loadScene(choice.next);
         return;
       }
 
       if (choice.action === 'train') {
         state.power += 2;
-        addLog('The blacksmith teaches you advanced combat techniques. Power +2!', 'success');
+        addLog('The blacksmith teaches you advanced techniques. Power +2!', 'success');
         playSound('success');
-        setScene('village');
-        return;
-      }
-
-      if (choice.action === 'buyPotion') {
-        if (state.gold >= 5) {
-          state.gold -= 5;
-          state.potion += 1;
-          addLog('You purchase a glowing healing potion.', 'success');
-          playSound('success');
-          setScene('village');
-        } else {
-          addLog("You don't have enough gold!", 'danger');
-          playSound('damage');
-        }
+        loadScene('village');
         return;
       }
 
       if (choice.action === 'rest') {
         state.hp = state.maxHp;
-        addLog('You sleep soundly and recover fully.', 'success');
+        addLog('You rest and recover fully.', 'success');
         playSound('heal');
-        setScene('village');
-        return;
-      }
-
-      if (choice.action === 'searchBushes') {
-        const roll = randomInt(1, 3);
-        if (roll === 1) {
-          state.gold += 6;
-          addLog('You find a hidden pouch with 6 gold coins!', 'success');
-          playSound('success');
-        } else if (roll === 2) {
-          state.potion += 1;
-          addLog('You discover a forgotten potion tucked under a root.', 'success');
-          playSound('success');
-        } else {
-          state.lantern = true;
-          addLog('You uncover an ancient lantern. The forest looks less frightening now.', 'success');
-          playSound('success');
-        }
-        setScene('forest');
+        loadScene('village');
         return;
       }
 
@@ -648,29 +806,24 @@
           name: 'Wolf',
           hp: Math.floor(7 * mod.enemyHp),
           maxHp: Math.floor(7 * mod.enemyHp),
-          damage: Math.floor(randomInt(2, 5) * mod.enemyDmg)
+          damage: Math.floor(Math.random() * 5 + 2) * mod.enemyDmg
         };
-        battleLoop(enemy, 8, 'wolf', () => {
+        startBattle(enemy, () => {
           state.gold += 8;
-          state.enemiesDefeated += 1;
-          gainExp(Math.floor(25 * mod.expReward));
-          addLog('You slay the wolf and claim victory!', 'success');
+          addLog('Victory! You gain 8 gold and 25 XP.', 'success');
           playSound('victory');
-          setScene('forest');
+          quests.slayWolf.progress++;
+          loadScene('forest');
         });
         return;
       }
 
       if (choice.action === 'openChest') {
-        if (!state.key) {
-          state.key = true;
-          addLog('The chest opens! You obtain a silver shrine key!', 'success');
-          playSound('success');
-          setScene('cave');
-        } else {
-          addLog('The chest is empty. Its treasures have been claimed.', 'accent');
-          setScene('cave');
-        }
+        state.inventory.push('Shrine Key');
+        addLog('You open the chest and find the Shrine Key!', 'success');
+        playSound('success');
+        quests.findKey.progress++;
+        loadScene('cave');
         return;
       }
 
@@ -680,22 +833,20 @@
           name: 'Cave Slime',
           hp: Math.floor(9 * mod.enemyHp),
           maxHp: Math.floor(9 * mod.enemyHp),
-          damage: Math.floor(randomInt(1, 4) * mod.enemyDmg)
+          damage: Math.floor(Math.random() * 4 + 1) * mod.enemyDmg
         };
-        battleLoop(enemy, 12, 'slime', () => {
+        startBattle(enemy, () => {
           state.gold += 12;
-          state.enemiesDefeated += 1;
-          gainExp(Math.floor(40 * mod.expReward));
-          addLog('The slime dissolves into nothingness. Victory!', 'success');
+          addLog('Slime defeated! 12 gold and 40 XP gained.', 'success');
           playSound('victory');
-          setScene('cave');
+          loadScene('cave');
         });
         return;
       }
 
       if (choice.action === 'finalBattle') {
-        if (!state.key) {
-          addLog('The shrine door is locked. You need the shrine key!', 'danger');
+        if (!state.inventory.includes('Shrine Key')) {
+          addLog('You need the Shrine Key!', 'danger');
           playSound('damage');
           return;
         }
@@ -705,67 +856,45 @@
           name: 'Shrine Guardian',
           hp: Math.floor(18 * mod.enemyHp),
           maxHp: Math.floor(18 * mod.enemyHp),
-          damage: Math.floor(randomInt(2, 7) * mod.enemyDmg)
+          damage: Math.floor(Math.random() * 7 + 2) * mod.enemyDmg
         };
 
-        battleLoop(enemy, 18, 'guardian', () => {
+        startBattle(enemy, () => {
           state.hasWon = true;
-          state.hp = Math.max(1, state.hp);
           playSound('victory');
-          setScene('ending');
+          loadScene('ending');
         });
         return;
       }
 
       if (choice.action === 'restartGame') {
-        Object.assign(state, {
-          hp: 12,
-          maxHp: 12,
-          level: 1,
-          exp: 0,
-          expNeeded: 100,
-          gold: 0,
-          power: 2,
-          defense: 1,
-          lantern: false,
-          key: false,
-          potion: 1,
-          hasWon: false,
-          enemiesDefeated: 0
-        });
-        setScene('intro');
-        addLog('A new adventure begins...', 'accent');
-        return;
+        menuScreen.classList.remove('hidden');
+        gameScreen.classList.add('hidden');
+        playSound('click');
       }
     }
 
-    function battleLoop(enemy, rewards, type, onVictory) {
+    function startBattle(enemy, onVictory) {
       playSound('damage');
-      choicesEl.innerHTML = '';
+      const choicesDiv = document.getElementById('choices');
+      choicesDiv.innerHTML = '';
 
       const attackBtn = document.createElement('button');
       attackBtn.textContent = `⚔️ Attack (${state.power} DMG)`;
-      attackBtn.addEventListener('click', () => performAttack(enemy, rewards, type, onVictory));
+      attackBtn.addEventListener('click', () => performAttack(enemy, onVictory));
 
       const defendBtn = document.createElement('button');
-      defendBtn.textContent = '🛡️ Defend (Reduce Damage)';
-      defendBtn.addEventListener('click', () => performDefend(enemy, rewards, type, onVictory));
+      defendBtn.textContent = '🛡️ Defend';
+      defendBtn.addEventListener('click', () => performDefend(enemy, onVictory));
 
-      const potionBtn = document.createElement('button');
-      potionBtn.textContent = '🧪 Use Potion (+6 HP)';
-      potionBtn.disabled = state.potion <= 0;
-      potionBtn.addEventListener('click', () => usePotion(enemy, rewards, type, onVictory));
-
-      choicesEl.appendChild(attackBtn);
-      choicesEl.appendChild(defendBtn);
-      choicesEl.appendChild(potionBtn);
-
+      choicesDiv.appendChild(attackBtn);
+      choicesDiv.appendChild(defendBtn);
       renderBattleUI(enemy);
     }
 
     function renderBattleUI(enemy) {
-      battleAreaEl.innerHTML = `
-        <div class="battle-container">
+      document.getElementById('battleArea').innerHTML = `
+        <div class="battle-ui">
           <div class="battle-card">
             <div class="battle-name">YOU</div>
             <div class="hp-bar">
@@ -774,7 +903,6 @@
               </div>
             </div>
             <div class="hp-text">HP: ${state.hp}/${state.maxHp}</div>
-            <div class="hp-text">PWR: ${state.power} | DEF: ${state.defense}</div>
           </div>
           <div class="battle-card">
             <div class="battle-name">${enemy.name.toUpperCase()}</div>
@@ -784,130 +912,67 @@
               </div>
             </div>
             <div class="hp-text">HP: ${enemy.hp}/${enemy.maxHp}</div>
-            <div class="hp-text">DMG: ${enemy.damage}</div>
           </div>
         </div>
       `;
     }
 
-    function performAttack(enemy, rewards, type, onVictory) {
-      const playerDmg = randomInt(state.power - 1, state.power + 2);
-      enemy.hp -= playerDmg;
-      addLog(`You strike for ${playerDmg} damage!`, 'success');
+    function performAttack(enemy, onVictory) {
+      const dmg = Math.floor(Math.random() * 3) + state.power - 1;
+      enemy.hp -= dmg;
+      addLog(`You deal ${dmg} damage!`, 'success');
       playSound('success');
 
       if (enemy.hp <= 0) {
-        battleAreaEl.innerHTML = '';
-        choicesEl.innerHTML = '';
+        document.getElementById('battleArea').innerHTML = '';
         onVictory();
         return;
       }
 
-      setTimeout(() => enemyAttack(enemy, rewards, type, onVictory), 600);
+      setTimeout(() => enemyAttack(enemy, onVictory), 600);
     }
 
-    function performDefend(enemy, rewards, type, onVictory) {
+    function performDefend(enemy, onVictory) {
       addLog('You brace for impact!', 'accent');
-      playSound('click');
-
       setTimeout(() => {
-        const enemyDmg = Math.max(1, Math.floor(enemy.damage * 0.4));
-        state.hp -= enemyDmg;
-        addLog(`${enemy.name} attacks for ${enemyDmg} damage (reduced by defense)!`, 'danger');
+        const dmg = Math.max(1, Math.floor(enemy.damage * 0.4));
+        state.hp -= dmg;
+        addLog(`${enemy.name} attacks for ${dmg} damage (reduced)!`, 'danger');
         playSound('damage');
 
         if (state.hp <= 0) {
-          loseGame(enemy.name);
+          addLog(`Defeated by ${enemy.name}. Game Over.`, 'danger');
           return;
         }
-
-        battleLoop(enemy, rewards, type, onVictory);
+        updateStats();
       }, 600);
     }
 
-    function usePotion(enemy, rewards, type, onVictory) {
-      if (state.potion <= 0) return;
-
-      state.potion -= 1;
-      state.hp = Math.min(state.hp + 6, state.maxHp);
-      addLog('You drink a healing potion and recover!', 'success');
-      playSound('heal');
-
-      setTimeout(() => enemyAttack(enemy, rewards, type, onVictory), 600);
-    }
-
-    function enemyAttack(enemy, rewards, type, onVictory) {
-      const enemyDmg = randomInt(Math.max(1, enemy.damage - 2), enemy.damage + 1);
-      state.hp -= enemyDmg;
-      addLog(`${enemy.name} attacks for ${enemyDmg} damage!`, 'danger');
+    function enemyAttack(enemy, onVictory) {
+      const dmg = Math.floor(Math.random() * 3) + enemy.damage - 1;
+      state.hp -= dmg;
+      addLog(`${enemy.name} attacks for ${dmg} damage!`, 'danger');
       playSound('damage');
 
       if (state.hp <= 0) {
-        loseGame(enemy.name);
+        addLog('You have been defeated!', 'danger');
         return;
       }
 
       updateStats();
-      battleLoop(enemy, rewards, type, onVictory);
+      renderBattleUI(enemy);
     }
 
-    function loseGame(enemyName) {
-      battleAreaEl.innerHTML = '';
-      choicesEl.innerHTML = '';
-      addLog(`${enemyName} defeated you. Your adventure ends here...`, 'danger');
-      playSound('defeat');
-      setTimeout(() => {
-        const retry = confirm(`You were defeated by ${enemyName}. Try again?`);
-        if (retry) {
-          Object.assign(state, {
-            hp: 12,
-            maxHp: 12,
-            level: 1,
-            exp: 0,
-            expNeeded: 100,
-            gold: 0,
-            power: 2,
-            defense: 1,
-            lantern: false,
-            key: false,
-            potion: 1,
-            hasWon: false,
-            enemiesDefeated: 0
-          });
-          setScene('intro');
-          addLog('The story begins anew...', 'accent');
-        } else {
-          menuScreen.classList.remove('hidden');
-          gameScreen.style.display = 'none';
-        }
-      }, 200);
+    function addLog(msg, type = '') {
+      const logEl = document.getElementById('log');
+      if (type === 'success') msg = `✓ ${msg}`;
+      else if (type === 'danger') msg = `✗ ${msg}`;
+      else if (type === 'accent') msg = `→ ${msg}`;
+      logEl.textContent = msg;
     }
-
-    soundToggle.addEventListener('click', () => {
-      soundEnabled.value = !soundEnabled.value;
-      soundToggle.textContent = soundEnabled.value ? '🔊' : '🔇';
-      soundToggle.classList.toggle('muted');
-      playSound('click');
-    });
-
-    document.getElementById('startBtn').addEventListener('click', () => {
-      state.difficulty = document.querySelector('.diff-btn.active').dataset.difficulty;
-      menuScreen.classList.add('hidden');
-      gameScreen.style.display = 'flex';
-      setScene('intro');
-      playSound('success');
-    });
-
-    document.querySelectorAll('.diff-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        playSound('click');
-      });
-    });
 
     function showCredits() {
-      alert('WHISPERING WOODS RPG\n\nA browser-based text adventure with:\n✓ Dynamic combat system\n✓ Level progression & stats\n✓ Rich storytelling\n✓ Sound effects\n✓ Multiple difficulties\n\nEnjoy your adventure!');
+      alert('WHISPERING WOODS - ULTIMATE RPG\n\n✓ Character Classes\n✓ Map System\n✓ Quest Tracking\n✓ Inventory\n✓ Full Combat\n✓ Sound Effects\n✓ Save/Load\n✓ Multiple Difficulties\n\nEnjoy your epic adventure!');
     }
 
     updateStats();
