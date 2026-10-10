@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whispering Woods Adventure</title>
+  <style>
+    :root {
+      --bg: #101820;
+      --panel: #18242d;
+      --panel-2: #223540;
+      --text: #f3f5f7;
+      --muted: #b9c3cc;
+      --gold: #f7d66d;
+      --danger: #ff7d7d;
+      --good: #7be0a4;
+      --accent: #7cc6ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #0d151a, #1b2d38);
+      color: var(--text);
+    }
+
+    .game {
+      width: min(90vw, 820px);
+      background: rgba(15, 23, 29, 0.9);
+      border: 2px solid #2d4355;
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+
+    .topbar {
+      background: var(--panel);
+      padding: 18px 22px;
+      border-bottom: 1px solid #314b5c;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+    }
+
+    .stats {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .stats span {
+      background: var(--panel-2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #40657b;
+    }
+
+    .content {
+      padding: 24px 22px 16px;
+    }
+
+    .scene-name {
+      color: var(--gold);
+      margin: 0 0 12px;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    .story {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid #2f4659;
+      border-radius: 12px;
+      padding: 18px;
+      line-height: 1.7;
+      min-height: 180px;
+      color: var(--text);
+    }
+
+    .choices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      flex: 1 1 180px;
+      background: linear-gradient(180deg, #2a4a5f, #1d3849);
+      color: var(--text);
+      border: 1px solid #5a7d94;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.15s ease;
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .log {
+      margin-top: 18px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid #2d4658;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--muted);
+      min-height: 70px;
+      white-space: pre-wrap;
+    }
+
+    .good { color: var(--good); }
+    .danger { color: var(--danger); }
+    .accent { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <div class="topbar">
+      <div class="title">Whispering Woods</div>
+      <div class="stats">
+        <span id="hp">HP: 12</span>
+        <span id="gold">Gold: 0</span>
+        <span id="power">Power: 2</span>
+        <span id="items">Items: none</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="scene-name" id="sceneName">The Start</div>
+      <div class="story" id="story"></div>
+
+      <div class="choices" id="choices"></div>
+
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      hp: 12,
+      maxHp: 12,
+      gold: 0,
+      power: 2,
+      lantern: false,
+      key: false,
+      potion: 1,
+      hasWon: false
+    };
+
+    const scenes = {
+      intro: {
+        name: "The Whispering Trail",
+        text: "You wake at the edge of the Whispering Woods. A cold breeze moves through the trees, and a distant bell echoes from a ruined shrine on the mountain. The path ahead feels dangerous, but full of treasure.",
+        choices: [
+          { text: "Enter the village", next: "village" },
+          { text: "Walk into the forest", next: "forest" }
+        ]
+      },
+
+      village: {
+        name: "Alder Village",
+        text: "A small village sits between the forest and the mountain. Lanterns flicker in the dusk. A blacksmith sharpens a blade, and an innkeeper watches you with tired eyes.",
+        choices: [
+          { text: "Train with the blacksmith (+1 power)", action: "train" },
+          { text: "Buy a potion", action: "buyPotion" },
+          { text: "Rest at the inn", action: "rest" },
+          { text: "Head into the forest", next: "forest" }
+        ]
+      },
+
+      forest: {
+        name: "Whispering Forest",
+        text: "The trees squeeze together like old whispers. The forest floor is covered in moss and strange silver petals. To the east, a cave yawns into the earth. To the north, the trail climbs toward a ruined shrine.",
+        choices: [
+          { text: "Fight a wolf", action: "wolfBattle" },
+          { text: "Search the bushes for loot", action: "searchBushes" },
+          { text: "Enter the cave", next: "cave" },
+          { text: "Return to village", next: "village" }
+        ]
+      },
+
+      cave: {
+        name: "Moonlit Cave",
+        text: "Inside the cave, an old chest sits beside a pool of glimmering water. The walls drip with glowing moss, and the air smells like stone and rain.",
+        choices: [
+          { text: "Open the chest", action: "openChest" },
+          { text: "Fight the cave slime", action: "slimeBattle" },
+          { text: "Climb back out", next: "forest" }
+        ]
+      },
+
+      shrine: {
+        name: "Ruined Shrine",
+        text: "The shrine stands beneath a black sky. Broken pillars ring a stone altar, and a heavy iron door blocks the inner chamber. A darkness stirs behind it.",
+        choices: [
+          { text: "Enter the shrine", action: "finalBattle" },
+          { text: "Return to the forest", next: "forest" }
+        ]
+      },
+
+      ending: {
+        name: "Victory",
+        text: "The guardian falls in a burst of silver ash. The shrine doors open, revealing a glowing relic that hums with ancient power. The village is safe, and your name will be spoken for generations.",
+        choices: [
+          { text: "Play again", action: "restartGame" }
+        ]
+      }
+    };
+
+    let currentScene = "intro";
+    const logEl = document.getElementById("log");
+    const storyEl = document.getElementById("story");
+    const choicesEl = document.getElementById("choices");
+    const sceneNameEl = document.getElementById("sceneName");
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function addLog(msg) {
+      logEl.textContent = msg;
+    }
+
+    function updateStats() {
+      document.getElementById("hp").textContent = "HP: " + state.hp + "/" + state.maxHp;
+      document.getElementById("gold").textContent = "Gold: " + state.gold;
+      document.getElementById("power").textContent = "Power: " + state.power;
+      const items = [];
+      if (state.lantern) items.push("Lantern");
+      if (state.key) items.push("Shrine Key");
+      if (state.potion > 0) items.push("Potion x" + state.potion);
+      document.getElementById("items").textContent = "Items: " + (items.length ? items.join(", ") : "none");
+    }
+
+    function setScene(key) {
+      currentScene = key;
+      const scene = scenes[key];
+      sceneNameEl.textContent = scene.name;
+      storyEl.textContent = scene.text;
+      renderChoices(scene.choices);
+      updateStats();
+    }
+
+    function renderChoices(choices) {
+      choicesEl.innerHTML = "";
+
+      choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.textContent = choice.text;
+        btn.addEventListener("click", () => handleChoice(choice));
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    function handleChoice(choice) {
+      if (state.hasWon) return;
+
+      if (choice.next) {
+        setScene(choice.next);
+        return;
+      }
+
+      if (choice.action === "train") {
+        state.power += 1;
+        addLog("The blacksmith teaches you a sharper stance. Your power rises to " + state.power + ".");
+        setScene("village");
+        return;
+      }
+
+      if (choice.action === "buyPotion") {
+        if (state.gold >= 5) {
+          state.gold -= 5;
+          state.potion += 1;
+          addLog("You buy a glowing potion. It feels warm in your hand.");
+          setScene("village");
+        } else {
+          addLog("The innkeeper shrugs. 'No coin, no potion.'");
+        }
+        return;
+      }
+
+      if (choice.action === "rest") {
+        state.hp = state.maxHp;
+        addLog("You sleep by the innfire and recover to full health.");
+        setScene("village");
+        return;
+      }
+
+      if (choice.action === "searchBushes") {
+        const roll = randomInt(1, 3);
+        if (roll === 1) {
+          state.gold += 6;
+          addLog("You find a hidden pouch with 6 gold.");
+        } else if (roll === 2) {
+          state.potion += 1;
+          addLog("You discover a forgotten potion tucked under a root.");
+        } else {
+          state.lantern = true;
+          addLog("You uncover a rusted but working lantern. The forest looks less frightening now.");
+        }
+        setScene("forest");
+        return;
+      }
+
+      if (choice.action === "wolfBattle") {
+        const enemy = { name: "Wolf", hp: 7, damage: randomInt(2, 5) };
+        const attack = randomInt(2, 6) + state.power;
+        enemy.hp -= attack;
+
+        if (enemy.hp <= 0) {
+          state.gold += 8;
+          addLog("You slay the wolf with a final smash. You gain 8 gold.");
+          setScene("forest");
+        } else {
+          state.hp -= enemy.damage;
+          addLog("You deal " + attack + " damage, but the wolf bites back for " + enemy.damage + " damage.");
+          if (state.hp <= 0) {
+            loseGame("The wolf tears through your guard. You collapse in the forest.");
+          } else {
+            setScene("forest");
+          }
+        }
+        return;
+      }
+
+      if (choice.action === "openChest") {
+        if (!state.key) {
+          state.key = true;
+          addLog("The chest creaks open. Inside is a silver shrine key, marked with an old rune.");
+          setScene("cave");
+        } else {
+          addLog("The chest is empty now. The cave feels silent.");
+          setScene("cave");
+        }
+        return;
+      }
+
+      if (choice.action === "slimeBattle") {
+        const enemy = { name: "Cave Slime", hp: 9, damage: randomInt(1, 4) };
+        const attack = randomInt(3, 6) + state.power;
+        enemy.hp -= attack;
+
+        if (enemy.hp <= 0) {
+          state.gold += 12;
+          addLog("You destroy the cave slime and find 12 gold in the ooze.");
+          setScene("cave");
+        } else {
+          state.hp -= enemy.damage;
+          addLog("Your blow lands for " + attack + " damage, but the slime splashes back for " + enemy.damage + " damage.");
+          if (state.hp <= 0) {
+            loseGame("The slime oozes over your boots and swallows you whole.");
+          } else {
+            setScene("cave");
+          }
+        }
+        return;
+      }
+
+      if (choice.action === "finalBattle") {
+        if (!state.key) {
+          addLog("The shrine door is locked. You need a key.");
+          return;
+        }
+
+        const guardianHp = 18;
+        const playerHit = randomInt(4, 9) + state.power;
+        const guardianHit = randomInt(2, 7);
+
+        const remainingHp = guardianHp - playerHit;
+
+        if (remainingHp <= 0) {
+          state.hasWon = true;
+          state.hp = Math.max(1, state.hp);
+          setScene("ending");
+          addLog("You strike the guardian down with a final surge of light.");
+        } else {
+          state.hp -= guardianHit;
+          addLog("You hit the guardian for " + playerHit + " damage, but it counters for " + guardianHit + " damage.");
+          if (state.hp <= 0) {
+            loseGame("The guardian's shadow crushes you beneath the shrine.");
+          } else {
+            setScene("shrine");
+          }
+        }
+        return;
+      }
+
+      if (choice.action === "restartGame") {
+        Object.assign(state, {
+          hp: 12,
+          maxHp: 12,
+          gold: 0,
+          power: 2,
+          lantern: false,
+          key: false,
+          potion: 1,
+          hasWon: false
+        });
+        setScene("intro");
+        addLog("A new adventure begins.");
+        return;
+      }
+    }
+
+    function loseGame(message) {
+      addLog(message + " You fall to the ground. The adventure ends here.");
+      setTimeout(() => {
+        const retry = confirm("You have died. Restart the adventure?");
+        if (retry) {
+          Object.assign(state, {
+            hp: 12,
+            maxHp: 12,
+            gold: 0,
+            power: 2,
+            lantern: false,
+            key: false,
+            potion: 1,
+            hasWon: false
+          });
+          setScene("intro");
+          addLog("The story begins again.");
+        }
+      }, 200);
+    }
+
+    setScene("intro");
+    updateStats();
+  </script>
+</body>
+</html>
